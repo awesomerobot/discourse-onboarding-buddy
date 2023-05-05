@@ -1,0 +1,12 @@
+set your bio friend!
+
+<DEditor
+  @value={{this.fullProfile.bio_raw}}
+  @change={{action this.updateBio}}
+/>
+
+<SaveControls
+  @model={{this.currentUser}}
+  @action={{action "save"}}
+  @saved={{this.saved}}
+/>

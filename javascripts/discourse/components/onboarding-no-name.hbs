@@ -1,0 +1,14 @@
+you have to set your name!
+
+<TextField
+  @value={{this.currentUser.name}}
+  {{on "input" this.updateName}}
+  @classNames="input-xxlarge"
+  @maxlength="255"
+/>
+
+<SaveControls
+  @model={{this.currentUser}}
+  @action={{action "save"}}
+  @saved={{this.saved}}
+/>

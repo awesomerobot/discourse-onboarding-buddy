@@ -1,0 +1,17 @@
+{{#if this.isHomepage}}
+  {{#if (and this.isNoob this.shouldShow)}}
+    <div class="custom-onboarding-tips" {{did-insert this.getFullProfile}}>
+      <ConditionalLoadingSpinner @condition={{this.loading}}>
+        {{#if this.randomListItem}}
+          {{this.randomListItem.label}}
+          {{component this.randomListItem.id fullProfile=this.fullProfile}}
+        {{/if}}
+        <DButton
+          @icon="times"
+          @class="dismiss-onboarding-tips"
+          @action={{this.disableOnboarding}}
+        />
+      </ConditionalLoadingSpinner>
+    </div>
+  {{/if}}
+{{/if}}
