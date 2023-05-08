@@ -1,3 +1,10 @@
-enable 2fa to be safe!
-
-<a href="/my/preferences/second-factor">here</a>
+<div class="custom-onboarding-2fa">
+  <h3>{{theme-i18n "onboarding.2fa.headline"}}</h3>
+  <p>
+    {{theme-i18n "onboarding.2fa.description"}}
+  </p>
+  <a class="btn btn-primary" href="/my/preferences/second-factor">
+    {{d-icon "lock"}}
+    <span class="d-button-label">{{theme-i18n "onboarding.2fa.button"}}</span>
+  </a>
+</div>

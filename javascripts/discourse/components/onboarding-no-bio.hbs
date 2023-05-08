@@ -1,12 +1,33 @@
-set your bio friend!
-
-<DEditor
-  @value={{this.fullProfile.bio_raw}}
-  @change={{action this.updateBio}}
-/>
-
-<SaveControls
-  @model={{this.currentUser}}
-  @action={{action "save"}}
-  @saved={{this.saved}}
-/>
+<div class="custom-onboarding-bio">
+  {{#unless this.saved}}
+    <h3>{{theme-i18n "onboarding.bio.headline"}}</h3>
+    <p>
+      {{theme-i18n "onboarding.bio.description"}}
+    </p>
+    <DEditor
+      @value={{this.fullProfile.bio_raw}}
+      @change={{action this.updateBio}}
+    />
+    <DButton
+      @action={{action "save"}}
+      @translatedLabel={{theme-i18n "onboarding.bio.button"}}
+      @class="btn-primary save-changes"
+      @isLoading={{this.isSaving}}
+      @disabled={{this.submitDisabled}}
+    />
+  {{/unless}}
+  {{#if this.saved}}
+    <h3>Hooray! Your bio has been saved.</h3>
+    <p>The first couple of lines are also shown on your
+      <a
+        class="trigger-user-card"
+        data-user-card="{{this.currentUser.username}}"
+      >user card</a>. If you want to edit your bio visit
+      <a href="my/preferences/profile">your preferences</a>.
+    </p>
+    <MoreButtons
+      @setRandomListItem={{@setRandomListItem}}
+      @dismissBanner={{@dismissBanner}}
+    />
+  {{/if}}
+</div>

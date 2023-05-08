@@ -2,4 +2,61 @@
   padding: 2em;
   background: var(--tertiary-low);
   margin-bottom: 1em;
+  position: relative;
+
+  body:not(.has-sidebar-page) & {
+    @media screen and (min-width: 1600px) {
+      position: fixed;
+      z-index: 99999;
+      right: 1em;
+      width: calc((100vw - 1300px) / 2);
+      max-width: 20em;
+    }
+  }
+
+  body.has-sidebar-page & {
+    @media screen and (min-width: 1800px) {
+      position: fixed;
+      z-index: 99999;
+      right: 1em;
+      width: calc((100vw - 1524px) / 2);
+      max-width: 20em;
+    }
+  }
+
+  .dismiss-onboarding-tips {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  input {
+    max-width: 100%;
+  }
+}
+
+.custom-onboarding-bio {
+  .d-editor-preview-wrapper,
+  .d-editor-button-bar {
+    display: none;
+  }
+  .d-editor {
+    margin-bottom: 1em;
+  }
+  button.local-dates {
+    display: none;
+  }
+  .d-editor-preview {
+    background: var(--tertiary-very-low);
+    padding: 0.5em;
+  }
+}
+
+.custom-onboarding-avatar {
+  [class*="__uploader"] {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-bottom: 1em;
+  }
 }

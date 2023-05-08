@@ -1,3 +1,31 @@
 en:
   theme_metadata:
     description: "Checklist for new users"
+  onboarding:
+    another_tip: "Want another tip?"
+    bio:
+      button: "Add to profile"
+      headline: "Be the author of your own story"
+      description: "Adding a short bio can help build trust and make it easier to connect with other members."
+    avatar:
+      button: "Save your avatar"
+      headline: "Stand out from the crowd"
+      description: "Add a photo of yourself (or your favorite animal if you're shy) and you'll
+    instantly become more recognizable."
+    name:
+      button: "Add name"
+      headline: "A rose by any other name..."
+      description: "is a lovely username, but you can also add your real name, nickname, or whatever you'd like!"
+    2fa:
+      button: "Secure your account"
+      headline: "Protect your posts"
+      description: "Two-factor authentication (2FA) boosts account security by requiring a unique code. Stop intruders even if they know your password!"
+    faq:
+      button: "Read more"
+      headline: "Knowledge is power"
+      description: "Check out our FAQ to learn more about how we can work together to make this community great."
+    chat:
+      button: "Browse channels"
+      headline: "Life in the fast-lane"
+      description: "Join a chat channel for faster, more casual conversation. Your slower-paced discussion topics will always be here waiting for you."
+

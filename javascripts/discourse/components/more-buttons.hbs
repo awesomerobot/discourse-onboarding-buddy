@@ -1,0 +1,13 @@
+<h4>{{theme-i18n "onboarding.another_tip"}}</h4>
+
+<DButton
+  @action={{action @setRandomListItem}}
+  @translatedLabel="sure!"
+  @class="btn-primary"
+/>
+
+<DButton
+  @action={{action @dismissBanner}}
+  @translatedLabel="maybe later"
+  @class="btn-flat"
+/>

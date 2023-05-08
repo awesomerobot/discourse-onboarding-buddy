@@ -1,14 +1,22 @@
 {{#if this.isHomepage}}
-  {{#if (and this.isNoob this.shouldShow)}}
-    <div class="custom-onboarding-tips" {{did-insert this.getFullProfile}}>
+  {{#if (and this.isNoob this.shouldShow (not this.isDismissed))}}
+    <div
+      class="custom-onboarding-tips"
+      {{did-insert this.getFullProfile}}
+      {{did-insert this.setRandomListItem}}
+    >
       <ConditionalLoadingSpinner @condition={{this.loading}}>
         {{#if this.randomListItem}}
-          {{this.randomListItem.label}}
-          {{component this.randomListItem.id fullProfile=this.fullProfile}}
+          {{component
+            this.randomListItem.id
+            fullProfile=this.fullProfile
+            dismissBanner=this.dismissBanner
+            setRandomListItem=this.setRandomListItem
+          }}
         {{/if}}
         <DButton
           @icon="times"
-          @class="dismiss-onboarding-tips"
+          @class="btn-flat dismiss-onboarding-tips"
           @action={{this.disableOnboarding}}
         />
       </ConditionalLoadingSpinner>

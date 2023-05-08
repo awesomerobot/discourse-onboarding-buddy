@@ -15,12 +15,15 @@ export default class OnboardingChecklist extends Component {
   @tracked fullProfile = null;
   @tracked loading = true;
   @tracked incompleteUserFields = [];
+  @tracked currentRandomIndex = -1;
   @tracked shouldShow = true;
+  @tracked dismissalExpirationTime = null;
+  @tracked isDismissed;
 
   constructor() {
     super(...arguments);
-
     this.router.on("routeDidChange", this.handleRouteChange.bind(this));
+    this.checkDismissalStatus();
   }
 
   willDestroy() {
@@ -36,7 +39,7 @@ export default class OnboardingChecklist extends Component {
         this.currentUser.username
     ) {
       const localStorageKey = `fullProfile_${this.currentUser.username}`;
-      localStorage.setItem(localStorageKey, JSON.stringify(this.currentUser));
+      localStorage.removeItem(localStorageKey);
     }
   }
 
@@ -80,37 +83,25 @@ export default class OnboardingChecklist extends Component {
         weight: 1,
         id: "onboarding-read-faq",
         label: "Has not read FAQ",
-        condition: !this.currentUser.read_faq,
-      },
-      {
-        weight: 1,
-        id: "onboarding-second-factor",
-        label: "Does not have second factor",
-        condition: !this.currentUser.second_factor_enabled,
+        condition: this.currentUser.read_faq,
       },
       {
         weight: 2,
+        id: "onboarding-second-factor",
+        label: "Does not have second factor",
+        condition: this.currentUser.second_factor_enabled,
+      },
+      {
+        weight: 1,
         id: "onboarding-no-channels",
         label: "No chat channels joined",
-        condition: !this.hasJoinedChat,
+        condition: this.hasJoinedChat,
       },
       {
-        weight: 1,
+        weight: 4,
         id: "onboarding-has-letter-avatar",
         label: "Still has letter avatar",
-        condition: this.hasLetterAvatar,
-      },
-      {
-        weight: 1,
-        id: "onboarding-custom-sidebar",
-        label: "Has no sidebar items",
-        condition: !this.hasCustomizedSidebar,
-      },
-      {
-        weight: 1,
-        id: "onboarding-no-posts",
-        label: "Does not have any posts",
-        condition: !this.currentUser.any_posts,
+        condition: !this.hasLetterAvatar,
       },
       {
         weight: 1,
@@ -135,6 +126,15 @@ export default class OnboardingChecklist extends Component {
     const items = this.listItems.filter(
       (item) => item.condition === undefined || item.condition
     );
+
+    return items[this.currentRandomIndex];
+  }
+
+  @action
+  setRandomListItem() {
+    const items = this.listItems.filter(
+      (item) => item.condition === undefined || item.condition
+    );
     const cumulativeWeights = [];
     let totalWeight = 0;
 
@@ -147,7 +147,8 @@ export default class OnboardingChecklist extends Component {
 
     for (let i = 0; i < cumulativeWeights.length; i++) {
       if (randomNumber <= cumulativeWeights[i]) {
-        return items[i];
+        this.currentRandomIndex = i;
+        break;
       }
     }
   }
@@ -157,6 +158,7 @@ export default class OnboardingChecklist extends Component {
 
     try {
       const json = await ajax(`/u/${this.currentUser.username}.json`, {});
+
       const userDataWithTimestamp = {
         userData: json.user,
         timestamp: new Date().getTime(),
@@ -194,6 +196,61 @@ export default class OnboardingChecklist extends Component {
     } else {
       await this.fetchAndStoreProfileData();
     }
+  }
+
+  @action
+  showDifferentListItem() {
+    const items = this.listItems.filter(
+      (item) => item.condition === undefined || item.condition
+    );
+
+    let newRandomIndex;
+    do {
+      newRandomIndex = Math.floor(Math.random() * items.length);
+    } while (newRandomIndex === this.currentRandomIndex);
+
+    this.currentRandomIndex = newRandomIndex;
+  }
+
+  @action
+  checkDismissalStatus() {
+    const localStorageKey = `onboardingDismissalStatus_${this.currentUser.username}`;
+    const dismissalStatus = localStorage.getItem(localStorageKey);
+
+    if (dismissalStatus) {
+      const { isDismissed, expirationTime } = JSON.parse(dismissalStatus);
+      const currentTime = new Date().getTime();
+
+      if (isDismissed && currentTime < expirationTime) {
+        this.dismissalExpirationTime = expirationTime;
+        this.isDismissed = true;
+      } else {
+        this.clearDismissalStatus();
+      }
+    }
+  }
+
+  @action
+  clearDismissalStatus() {
+    const localStorageKey = `onboardingDismissalStatus_${this.currentUser.username}`;
+    localStorage.removeItem(localStorageKey);
+    this.dismissalExpirationTime = null;
+    this.isDismissed = false;
+  }
+
+  @action
+  dismissBanner() {
+    const localStorageKey = `onboardingDismissalStatus_${this.currentUser.username}`;
+    const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const dismissalStatus = {
+      isDismissed: true,
+      expirationTime,
+    };
+
+    localStorage.setItem(localStorageKey, JSON.stringify(dismissalStatus));
+    this.dismissalExpirationTime = expirationTime;
+    this.isDismissed = true;
+    this.shouldShow = false;
   }
 
   @action

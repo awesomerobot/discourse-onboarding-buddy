@@ -1,14 +1,34 @@
-you have to set your name!
-
-<TextField
-  @value={{this.currentUser.name}}
-  {{on "input" this.updateName}}
-  @classNames="input-xxlarge"
-  @maxlength="255"
-/>
-
-<SaveControls
-  @model={{this.currentUser}}
-  @action={{action "save"}}
-  @saved={{this.saved}}
-/>
+<div class="custom-onboarding-name">
+  {{#unless this.saved}}
+    <h3>{{theme-i18n "onboarding.name.headline"}}</h3>
+    <p>
+      <a class="mention">@{{this.currentUser.username}}</a>
+      {{theme-i18n "onboarding.name.description"}}
+    </p>
+    <TextField
+      @value={{this.currentUser.name}}
+      {{on "input" this.updateName}}
+      @classNames="input-xxlarge"
+      @maxlength="255"
+    />
+    <br />
+    <DButton
+      @action={{action "save"}}
+      @translatedLabel={{theme-i18n "onboarding.name.button"}}
+      @class="btn-primary save-changes"
+      @isLoading={{this.isSaving}}
+      @disabled={{this.submitDisabled}}
+    />
+  {{/unless}}
+  {{#if this.saved}}
+    <h3>Hello {{this.currentUser.name}}!</h3>
+    <p>Other members will be able to search for you using this name as well. You
+      can always change it from
+      <a href="my/preferences/account">your preferences</a>.
+    </p>
+    <MoreButtons
+      @setRandomListItem={{@setRandomListItem}}
+      @dismissBanner={{@dismissBanner}}
+    />
+  {{/if}}
+</div>

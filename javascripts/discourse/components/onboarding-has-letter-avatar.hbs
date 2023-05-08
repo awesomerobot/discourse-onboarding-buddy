@@ -1,6 +1,34 @@
-<DButton
-  @action={{action "showAvatarSelector"}}
-  @actionParam={{this.currentUser}}
-  @class="btn-default pad-left"
-  @icon="pencil-alt"
-/>
+<div class="custom-onboarding-avatar">
+  <h3>{{theme-i18n "onboarding.avatar.headline"}}</h3>
+  <p>
+    {{theme-i18n "onboarding.avatar.description"}}
+  </p>
+  <div class="custom-onboarding-avatar__uploader">
+    {{bound-avatar-template
+      (if
+        this.submitDisabled
+        @fullProfile.system_avatar_template
+        @fullProfile.custom_avatar_template
+      )
+      "large"
+    }}
+    <div class="custom-onboarding-avatar__grouped-controls">
+      <AvatarUploader
+        @user_id={{@fullProfile.id}}
+        @uploadedAvatarTemplate={{@fullProfile.custom_avatar_template}}
+        @uploadedAvatarId={{@fullProfile.custom_avatar_upload_id}}
+        @uploading={{this.uploading}}
+        @class="avatar-uploader"
+        @id="avatar-uploader"
+        @done={{action "uploadComplete"}}
+      />
+    </div>
+  </div>
+  <DButton
+    @action={{action "save"}}
+    @translatedLabel={{theme-i18n "onboarding.avatar.button"}}
+    @class="btn-primary save-changes"
+    @isLoading={{this.isSaving}}
+    @disabled={{this.submitDisabled}}
+  />
+</div>

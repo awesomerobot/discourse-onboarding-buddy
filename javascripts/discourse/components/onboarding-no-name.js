@@ -8,16 +8,17 @@ export default class YourComponent extends Component {
   @service currentUser;
   @tracked updatedName;
   @tracked saved;
+  @tracked submitDisabled = true;
 
   @action
   updateName(change) {
     this.updatedName = change.target.value;
+    this.submitDisabled = this.updatedName.length === 0;
   }
 
   @action
   save() {
     this.saved = false;
-
     return ajax(`/u/${this.currentUser.username}.json`, {
       type: "PUT",
       data: { name: this.updatedName },
