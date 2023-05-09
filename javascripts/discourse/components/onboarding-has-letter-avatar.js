@@ -34,10 +34,12 @@ export default class OnboardingUnfilledUserFields extends Component {
       .then(() => {
         this.saved = true;
         this.isSaving = false;
+        this.args.dismissBanner();
         window.location.reload();
       })
       .catch((error) => {
-        console.error("Error updating bio:", error);
+        // eslint-disable-next-line no-console
+        console.error("Error updating avatar:", error);
         this.saved = false;
       });
   }

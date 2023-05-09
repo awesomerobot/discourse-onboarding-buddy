@@ -41,6 +41,7 @@ export default class YourComponent extends Component {
         );
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.error("Error updating bio:", error);
         this.saved = false;
       });

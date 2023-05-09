@@ -1,0 +1,43 @@
+{{#if this.shouldShowOnboarding}}
+  <div
+    class="custom-onboarding-tips"
+    {{did-insert this.getFullProfile}}
+    {{did-insert this.setRandomListItem}}
+  >
+    <ConditionalLoadingSpinner @condition={{this.loading}}>
+      {{#if this.randomListItem.id}}
+        {{component
+          this.randomListItem.id
+          fullProfile=this.fullProfile
+          dismissBanner=this.dismissBanner
+          setRandomListItem=this.setRandomListItem
+          celebrate=this.celebrate
+          checkCompletion=this.checkCompletion
+        }}
+        {{#if (theme-setting "allow_user_disable")}}
+          <DButton
+            @icon="times"
+            @class="btn-flat dismiss-onboarding-tips"
+            @action={{this.disableOnboarding}}
+          />
+        {{/if}}
+      {{/if}}
+    </ConditionalLoadingSpinner>
+  </div>
+{{/if}}
+
+{{#if this.showCompletion}}
+  <div class="custom-onboarding-tips" {{did-insert this.celebrate}}>
+    <h3>
+      {{theme-i18n "onboarding.complete.headline"}}
+      {{replace-emoji ":tada:"}}</h3>
+    <p>
+      {{theme-i18n "onboarding.complete.description"}}
+    </p>
+    <DButton
+      @translatedLabel={{theme-i18n "onboarding.complete.button"}}
+      @class="btn-primary"
+      @action={{action "partyOver"}}
+    />
+  </div>
+{{/if}}

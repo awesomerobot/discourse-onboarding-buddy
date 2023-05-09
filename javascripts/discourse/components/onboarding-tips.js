@@ -4,8 +4,9 @@ import { action } from "@ember/object";
 import { inject as service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { defaultHomepage } from "discourse/lib/utilities";
+import loadScript from "discourse/lib/load-script";
 
-export default class OnboardingChecklist extends Component {
+export default class OnboardingTips extends Component {
   @service router;
   @service site;
   @service store;
@@ -19,15 +20,49 @@ export default class OnboardingChecklist extends Component {
   @tracked shouldShow = true;
   @tracked dismissalExpirationTime = null;
   @tracked isDismissed;
+  @tracked showCompletion = false;
+  @tracked confetti;
 
   constructor() {
     super(...arguments);
     this.router.on("routeDidChange", this.handleRouteChange.bind(this));
-    this.checkDismissalStatus();
+
+    if (this.currentUser) {
+      this.checkDismissalStatus();
+    }
   }
 
   willDestroy() {
     this.router.off("routeDidChange", this.handleRouteChange.bind(this));
+  }
+
+  #getFilteredItems() {
+    return this.listItems.filter(
+      (item) => item.condition === undefined || item.condition
+    );
+  }
+
+  #parsePriority(setting) {
+    if (setting === "high") {
+      return 2;
+    }
+    if (setting === "low") {
+      return 1;
+    }
+    if (setting === "disabled") {
+      return 0;
+    }
+  }
+
+  get shouldShowOnboarding() {
+    return (
+      this.currentUser &&
+      this.showOn &&
+      !this.tooSoon &&
+      this.isNoob &&
+      this.shouldShow &&
+      !this.isDismissed
+    );
   }
 
   async handleRouteChange() {
@@ -38,73 +73,93 @@ export default class OnboardingChecklist extends Component {
       this.router.currentRoute.attributes?.username ===
         this.currentUser.username
     ) {
+      // don't show tips when someone's on their preferences page
+      this.shouldShow = false;
+      // there's a good chance someone changed some things, so ditch the cached profile
       const localStorageKey = `fullProfile_${this.currentUser.username}`;
       localStorage.removeItem(localStorageKey);
+    } else {
+      this.shouldShow = true;
+      // change tip on route change
+      this.setRandomListItem();
     }
   }
 
-  get isHomepage() {
-    this.loading = true;
-    return this.router.currentRouteName === `discovery.${defaultHomepage()}`;
+  get tooSoon() {
+    // if the user was created less than 24 hours ago (by default), don't show the tips...
+    // give them a little chance to acclimate and complete other new user tasks
+    if (!this.currentUser) {
+      return true;
+    }
+
+    if (this.fullProfile?.created_at) {
+      const createdAt = new Date(this.fullProfile.created_at);
+      const now = new Date();
+      const timeSinceCreation = now.getTime() - createdAt.getTime();
+      const oneDay = settings.hours_before_showing * 60 * 60 * 1000; // hours to milliseconds
+      return timeSinceCreation < oneDay;
+    }
   }
 
-  get hasLetterAvatar() {
-    return this.currentUser.avatar_template.includes("/letter/");
+  get showOn() {
+    if (settings.show_on === "homepage") {
+      return this.router.currentRouteName === `discovery.${defaultHomepage()}`;
+    } else {
+      return true;
+    }
   }
 
-  get hasJoinedChat() {
+  get canJoinChat() {
     return (
       this.site.siteSettings.chat_enabled &&
       this.currentUser.can_chat &&
-      this.currentUser.has_joinable_public_channels &&
-      this.currentUser.chat_channels.public_channels.length > 0
-    );
-  }
-
-  get hasCustomizedSidebar() {
-    return (
-      this.currentUser.sidebar_category_ids.length > 0 ||
-      this.currentUser.sidebar_tags.length > 0 ||
-      (this.currentUser.custom_sidebar_sections_enabled &&
-        this.currentUser.sidebar_sections.length > 0)
+      this.currentUser.has_joinable_public_channels
     );
   }
 
   get isNoob() {
     return (
-      !this.currentUser.user_option.skip_new_user_tips ||
-      !this.currentUser.trust_level >= 4
+      !this.currentUser.user_option.skip_new_user_tips &&
+      this.currentUser.trust_level <= settings.max_trust_level
+    );
+  }
+
+  get hasValidItems() {
+    return this.listItems.some(
+      (item) => item.condition === undefined || item.condition
     );
   }
 
   get listItems() {
     return [
       {
-        weight: 1,
+        weight: this.#parsePriority(settings.faq_priority),
         id: "onboarding-read-faq",
         label: "Has not read FAQ",
-        condition: this.currentUser.read_faq,
+        condition: !this.currentUser.read_faq,
       },
       {
-        weight: 2,
+        weight: this.#parsePriority(settings.twofactor_priority),
         id: "onboarding-second-factor",
         label: "Does not have second factor",
-        condition: this.currentUser.second_factor_enabled,
+        condition: !this.currentUser.second_factor_enabled,
       },
       {
-        weight: 1,
+        weight: this.#parsePriority(settings.chat_priority),
         id: "onboarding-no-channels",
         label: "No chat channels joined",
-        condition: this.hasJoinedChat,
+        condition:
+          this.canJoinChat &&
+          this.currentUser.chat_channels.public_channels.length === 0,
       },
       {
-        weight: 4,
+        weight: this.#parsePriority(settings.avatar_priority),
         id: "onboarding-has-letter-avatar",
         label: "Still has letter avatar",
-        condition: !this.hasLetterAvatar,
+        condition: this.currentUser.avatar_template.includes("/letter/"),
       },
       {
-        weight: 1,
+        weight: this.#parsePriority(settings.name_priority),
         id: "onboarding-no-name",
         label: "Has not added a name",
         condition:
@@ -113,7 +168,7 @@ export default class OnboardingChecklist extends Component {
           !this.currentUser.name,
       },
       {
-        weight: 1,
+        weight: this.#parsePriority(settings.bio_priority),
         id: "onboarding-no-bio",
         label: "Does not have bio",
         condition:
@@ -123,37 +178,43 @@ export default class OnboardingChecklist extends Component {
   }
 
   get randomListItem() {
-    const items = this.listItems.filter(
-      (item) => item.condition === undefined || item.condition
-    );
-
+    const items = this.#getFilteredItems();
     return items[this.currentRandomIndex];
   }
 
   @action
-  setRandomListItem() {
-    const items = this.listItems.filter(
-      (item) => item.condition === undefined || item.condition
-    );
-    const cumulativeWeights = [];
-    let totalWeight = 0;
+  async setRandomListItem() {
+    await this.fetchAndStoreProfileData();
 
-    for (const item of items) {
-      totalWeight += item.weight;
-      cumulativeWeights.push(totalWeight);
-    }
+    const items = this.#getFilteredItems();
 
-    const randomNumber = Math.random() * totalWeight;
+    if (items.length === 0) {
+      this.currentRandomIndex = -1;
+      this.shouldShow = false;
+    } else {
+      const cumulativeWeights = [];
+      let totalWeight = 0;
 
-    for (let i = 0; i < cumulativeWeights.length; i++) {
-      if (randomNumber <= cumulativeWeights[i]) {
-        this.currentRandomIndex = i;
-        break;
+      for (const item of items) {
+        totalWeight += item.weight;
+        cumulativeWeights.push(totalWeight);
+      }
+
+      const randomNumber = Math.random() * totalWeight;
+
+      for (let i = 0; i < cumulativeWeights.length; i++) {
+        if (randomNumber <= cumulativeWeights[i]) {
+          this.currentRandomIndex = i;
+          break;
+        }
       }
     }
   }
 
   async fetchAndStoreProfileData() {
+    this.loading = true;
+
+    // caching the full profile here
     const localStorageKey = `fullProfile_${this.currentUser.username}`;
 
     try {
@@ -164,14 +225,16 @@ export default class OnboardingChecklist extends Component {
         timestamp: new Date().getTime(),
       };
 
-      // Store the fetched profile and timestamp in localStorage
+      // store the fetched profile and timestamp in localStorage
       localStorage.setItem(
         localStorageKey,
         JSON.stringify(userDataWithTimestamp)
       );
+
       this.fullProfile = json.user;
       this.loading = false;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error fetching full profile:", error);
       this.loading = false;
     }
@@ -181,6 +244,8 @@ export default class OnboardingChecklist extends Component {
   async getFullProfile() {
     const localStorageKey = `fullProfile_${this.currentUser.username}`;
     const storedProfile = localStorage.getItem(localStorageKey);
+
+    // only check the full profile for changes every 12 hours
     const expiryDuration = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 
     if (storedProfile) {
@@ -196,13 +261,15 @@ export default class OnboardingChecklist extends Component {
     } else {
       await this.fetchAndStoreProfileData();
     }
+
+    if (!this.hasValidItems) {
+      this.shouldShow = false;
+    }
   }
 
   @action
   showDifferentListItem() {
-    const items = this.listItems.filter(
-      (item) => item.condition === undefined || item.condition
-    );
+    const items = this.#getFilteredItems();
 
     let newRandomIndex;
     do {
@@ -240,8 +307,10 @@ export default class OnboardingChecklist extends Component {
 
   @action
   dismissBanner() {
+    // dismissal is temporary
     const localStorageKey = `onboardingDismissalStatus_${this.currentUser.username}`;
-    const expirationTime = new Date().getTime() + 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const expirationTime =
+      new Date().getTime() + settings.dismiss_duration * 60 * 60 * 1000; // 24 hours in milliseconds
     const dismissalStatus = {
       isDismissed: true,
       expirationTime,
@@ -255,28 +324,63 @@ export default class OnboardingChecklist extends Component {
 
   @action
   async disableOnboarding() {
+    // disabling is tied to the "skip new user tips" setting
     try {
-      const response = await ajax(`/u/${this.currentUser.username}.json`, {
+      await ajax(`/u/${this.currentUser.username}.json`, {
         type: "PUT",
         data: {
           skip_new_user_tips: true,
         },
       });
 
-      this.fullProfile = response.user;
       this.shouldShow = false;
 
+      // clear the cached profile
       const localStorageKey = `fullProfile_${this.currentUser.username}`;
-      const userDataWithTimestamp = {
-        userData: response.user,
-        timestamp: new Date().getTime(),
-      };
-      localStorage.setItem(
-        localStorageKey,
-        JSON.stringify(userDataWithTimestamp)
-      );
+      localStorage.removeItem(localStorageKey);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error disabling onboarding:", error);
+    }
+  }
+
+  @action
+  async checkCompletion() {
+    await this.getFullProfile();
+
+    if (!this.hasValidItems) {
+      this.showCompletion = true;
+    } else {
+      this.setRandomListItem();
+    }
+  }
+
+  @action
+  celebrate() {
+    loadScript(settings.theme_uploads.confetti).then(() => {
+      const canvas = document.createElement("canvas");
+      canvas.id = "confetti-canvas";
+      document.body.appendChild(canvas);
+
+      const confettiElement = document.getElementById(canvas.id);
+      const confettiSettings = { target: confettiElement };
+      this.confetti = new ConfettiGenerator(confettiSettings);
+      this.confetti.render();
+    });
+  }
+
+  @action
+  partyOver() {
+    this.showCompletion = false;
+
+    if (this.confetti) {
+      this.confetti.clear();
+      this.confetti = null;
+
+      const canvas = document.getElementById("confetti-canvas");
+      if (canvas) {
+        canvas.remove();
+      }
     }
   }
 }

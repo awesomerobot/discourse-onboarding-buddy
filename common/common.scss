@@ -1,13 +1,17 @@
 .custom-onboarding-tips {
   padding: 2em;
-  background: var(--tertiary-low);
   margin-bottom: 1em;
-  position: relative;
+  background: var(--tertiary-low);
+  position: fixed;
+  z-index: 1001;
+  bottom: 1em;
+  right: 2em;
+  max-width: 300px;
+  box-shadow: shadow("dropdown");
 
   body:not(.has-sidebar-page) & {
     @media screen and (min-width: 1600px) {
       position: fixed;
-      z-index: 99999;
       right: 1em;
       width: calc((100vw - 1300px) / 2);
       max-width: 20em;
@@ -17,7 +21,6 @@
   body.has-sidebar-page & {
     @media screen and (min-width: 1800px) {
       position: fixed;
-      z-index: 99999;
       right: 1em;
       width: calc((100vw - 1524px) / 2);
       max-width: 20em;
@@ -53,10 +56,23 @@
 }
 
 .custom-onboarding-avatar {
+  .avatar {
+    background: var(--tertiary-low);
+  }
+
   [class*="__uploader"] {
     display: flex;
     align-items: center;
     gap: 1em;
     margin-bottom: 1em;
   }
+}
+
+#confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
 }

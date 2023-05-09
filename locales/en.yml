@@ -2,20 +2,28 @@ en:
   theme_metadata:
     description: "Checklist for new users"
   onboarding:
-    another_tip: "Want another tip?"
+    another_tip: "Show another tip"
+    maybe_later: "Maybe later"
+    complete:
+      headline: "Woo hoo!"
+      description: "That's all for now, go fourth and discuss!"
+      button: "Close"
     bio:
       button: "Add to profile"
       headline: "Be the author of your own story"
+      saved_headline: "Hooray! Bio saved."
       description: "Adding a short bio can help build trust and make it easier to connect with other members."
+      saved_description: "The first couple of lines are also shown on your <a class='trigger-user-card' data-user-card='%{username}'>user card</a>. If you want to edit your bio visit<a href='my/preferences/profile'> your preferences</a>."
     avatar:
       button: "Save your avatar"
       headline: "Stand out from the crowd"
-      description: "Add a photo of yourself (or your favorite animal if you're shy) and you'll
-    instantly become more recognizable."
+      description: "Add a photo of yourself (or your favorite animal if you're shy) and you'll instantly become more recognizable."
     name:
       button: "Add name"
       headline: "A rose by any other name..."
+      saved_headline: "Hello %{name}!"
       description: "is a lovely username, but you can also add your real name, nickname, or whatever you'd like!"
+      saved_description: "Other members will be able to search for you using your name as well. You can always change it from <a href='my/preferences/account'>your preferences</a>"
     2fa:
       button: "Secure your account"
       headline: "Protect your posts"
@@ -26,6 +34,5 @@ en:
       description: "Check out our FAQ to learn more about how we can work together to make this community great."
     chat:
       button: "Browse channels"
-      headline: "Life in the fast-lane"
+      headline: "Live life in the fast-lane"
       description: "Join a chat channel for faster, more casual conversation. Your slower-paced discussion topics will always be here waiting for you."
-

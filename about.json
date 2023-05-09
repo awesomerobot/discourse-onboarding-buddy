@@ -2,7 +2,8 @@
   "about_url": null,
   "license_url": null,
   "assets": {
+    "confetti": "/assets/confetti.min.js"
   },
-  "name": "Onboarding checklist",
+  "name": "Onboarding Tips",
   "component": true
 }

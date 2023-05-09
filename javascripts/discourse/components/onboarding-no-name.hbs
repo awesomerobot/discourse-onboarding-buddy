@@ -21,14 +21,16 @@
     />
   {{/unless}}
   {{#if this.saved}}
-    <h3>Hello {{this.currentUser.name}}!</h3>
-    <p>Other members will be able to search for you using this name as well. You
-      can always change it from
-      <a href="my/preferences/account">your preferences</a>.
+    <h3>
+      {{theme-i18n "onboarding.name.saved_headline" name=this.currentUser.name}}
+    </h3>
+    <p>
+      {{html-safe (theme-i18n "onboarding.name.saved_description")}}
     </p>
     <MoreButtons
       @setRandomListItem={{@setRandomListItem}}
       @dismissBanner={{@dismissBanner}}
+      @checkCompletion={{@checkCompletion}}
     />
   {{/if}}
 </div>

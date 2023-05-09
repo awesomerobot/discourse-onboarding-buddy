@@ -3,7 +3,11 @@
   <p>
     {{theme-i18n "onboarding.2fa.description"}}
   </p>
-  <a class="btn btn-primary" href="/my/preferences/second-factor">
+  <a
+    class="btn btn-primary"
+    href="/my/preferences/second-factor"
+    {{on "click" @dismissBanner}}
+  >
     {{d-icon "lock"}}
     <span class="d-button-label">{{theme-i18n "onboarding.2fa.button"}}</span>
   </a>

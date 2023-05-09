@@ -1,0 +1,71 @@
+show_on:
+  type: enum
+  default: all
+  choices:
+    - homepage
+    - all
+
+max_trust_level:
+  type: integer
+  default: 0
+  description: "Only show tips to users with this trust level or lower"
+
+faq_priority:
+  type: enum
+  choices:
+    - high
+    - low
+    - disabled
+  default: low
+
+twofactor_priority:
+  type: enum
+  choices:
+    - high
+    - low
+    - disabled
+  default: high
+
+chat_priority:
+  type: enum
+  choices:
+    - high
+    - low
+    - disabled
+  default: low
+
+avatar_priority:
+  type: enum
+  choices:
+    - high
+    - low
+    - disabled
+  default: high
+
+name_priority:
+  type: enum
+  choices:
+    - high
+    - low
+    - disabled
+  default: low
+
+bio_priority:
+  type: enum
+  choices:
+    - high
+    - low
+    - disabled
+  default: low
+
+hours_before_showing:
+  default: 24
+  description: Wait this many hours before showing tips to new accounts
+
+dismiss_duration:
+  default: 24
+  description: Wait this many hours before showing another tip after being dismissed
+
+allow_user_disable:
+  default: true
+  description: Allow users to disable tips by clicking the x

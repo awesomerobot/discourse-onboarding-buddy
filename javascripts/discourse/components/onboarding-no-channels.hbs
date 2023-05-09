@@ -3,7 +3,11 @@
   <p>
     {{theme-i18n "onboarding.chat.description"}}
   </p>
-  <a href="/chat/browse/open" class="btn btn-primary">
+  <a
+    href="/chat/browse/open"
+    class="btn btn-primary"
+    {{on "click" @dismissBanner}}
+  >
     {{theme-i18n "onboarding.chat.button"}}
   </a>
 </div>

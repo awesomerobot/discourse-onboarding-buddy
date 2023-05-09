@@ -17,17 +17,19 @@
     />
   {{/unless}}
   {{#if this.saved}}
-    <h3>Hooray! Your bio has been saved.</h3>
-    <p>The first couple of lines are also shown on your
-      <a
-        class="trigger-user-card"
-        data-user-card="{{this.currentUser.username}}"
-      >user card</a>. If you want to edit your bio visit
-      <a href="my/preferences/profile">your preferences</a>.
+    <h3>{{theme-i18n "onboarding.bio.saved_headline"}}</h3>
+    <p>
+      {{html-safe
+        (theme-i18n
+          "onboarding.bio.saved_description" username=this.currentUser.username
+        )
+      }}
     </p>
+
     <MoreButtons
       @setRandomListItem={{@setRandomListItem}}
       @dismissBanner={{@dismissBanner}}
+      @checkCompletion={{@checkCompletion}}
     />
   {{/if}}
 </div>
