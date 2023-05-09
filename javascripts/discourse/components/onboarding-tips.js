@@ -184,35 +184,6 @@ export default class OnboardingTips extends Component {
     return items[this.currentRandomIndex];
   }
 
-  @action
-  async setRandomListItem() {
-    await this.fetchAndStoreProfileData();
-
-    const items = this.#getFilteredItems();
-
-    if (items.length === 0) {
-      this.currentRandomIndex = -1;
-      this.shouldShow = false;
-    } else {
-      const cumulativeWeights = [];
-      let totalWeight = 0;
-
-      for (const item of items) {
-        totalWeight += item.weight;
-        cumulativeWeights.push(totalWeight);
-      }
-
-      const randomNumber = Math.random() * totalWeight;
-
-      for (let i = 0; i < cumulativeWeights.length; i++) {
-        if (randomNumber <= cumulativeWeights[i]) {
-          this.currentRandomIndex = i;
-          break;
-        }
-      }
-    }
-  }
-
   async fetchAndStoreProfileData() {
     this.loading = true;
 
@@ -239,6 +210,35 @@ export default class OnboardingTips extends Component {
       // eslint-disable-next-line no-console
       console.error("Error fetching full profile:", error);
       this.loading = false;
+    }
+  }
+
+  @action
+  async setRandomListItem() {
+    await this.fetchAndStoreProfileData();
+
+    const items = this.#getFilteredItems();
+
+    if (items.length === 0) {
+      this.currentRandomIndex = -1;
+      this.shouldShow = false;
+    } else {
+      const cumulativeWeights = [];
+      let totalWeight = 0;
+
+      for (const item of items) {
+        totalWeight += item.weight;
+        cumulativeWeights.push(totalWeight);
+      }
+
+      const randomNumber = Math.random() * totalWeight;
+
+      for (let i = 0; i < cumulativeWeights.length; i++) {
+        if (randomNumber <= cumulativeWeights[i]) {
+          this.currentRandomIndex = i;
+          break;
+        }
+      }
     }
   }
 
