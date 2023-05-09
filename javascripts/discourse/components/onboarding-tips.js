@@ -25,7 +25,9 @@ export default class OnboardingTips extends Component {
 
   constructor() {
     super(...arguments);
-    this.router.on("routeDidChange", this.handleRouteChange.bind(this));
+
+    this.boundHandleRouteChange = this.handleRouteChange.bind(this);
+    this.router.on("routeDidChange", this.boundHandleRouteChange);
 
     if (this.currentUser) {
       this.checkDismissalStatus();
@@ -33,7 +35,7 @@ export default class OnboardingTips extends Component {
   }
 
   willDestroy() {
-    this.router.off("routeDidChange", this.handleRouteChange.bind(this));
+    this.router.off("routeDidChange", this.boundHandleRouteChange);
   }
 
   #getFilteredItems() {
