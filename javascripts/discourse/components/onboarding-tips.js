@@ -38,9 +38,10 @@ export default class OnboardingTips extends Component {
     this.router.off("routeDidChange", this.boundHandleRouteChange);
   }
 
-  #getFilteredItems() {
+  get filteredItems() {
     return this.listItems.filter(
-      (item) => item.condition === undefined || item.condition
+      (item) =>
+        item.weight > -1 && (item.condition === undefined || item.condition)
     );
   }
 
@@ -125,10 +126,7 @@ export default class OnboardingTips extends Component {
   }
 
   get hasValidItems() {
-    return this.listItems.some(
-      (item) =>
-        item.weight > -1 && (item.condition === undefined || item.condition)
-    );
+    return this.filteredItems.length > 0;
   }
 
   get listItems() {
@@ -170,14 +168,13 @@ export default class OnboardingTips extends Component {
         id: "onboarding-no-bio",
         label: "Does not have bio",
         condition:
-          this.fullProfile?.can_change_bio && !this.fullProfile.bio_raw,
+          this.fullProfile?.can_change_bio && !this.fullProfile?.bio_raw,
       },
     ];
   }
 
   get randomListItem() {
-    const items = this.#getFilteredItems();
-    return items[this.currentRandomIndex];
+    return this.filteredItems[this.currentRandomIndex];
   }
 
   async fetchAndStoreProfileData() {
@@ -213,7 +210,7 @@ export default class OnboardingTips extends Component {
   async setRandomListItem() {
     await this.fetchAndStoreProfileData();
 
-    const items = this.#getFilteredItems();
+    const items = this.filteredItems;
 
     if (items.length === 0) {
       this.currentRandomIndex = -1;
@@ -267,7 +264,7 @@ export default class OnboardingTips extends Component {
 
   @action
   showDifferentListItem() {
-    const items = this.#getFilteredItems();
+    const items = this.filteredItems;
 
     let newRandomIndex;
     do {

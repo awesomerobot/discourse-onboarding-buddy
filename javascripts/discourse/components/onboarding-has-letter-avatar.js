@@ -5,7 +5,7 @@ import { ajax } from "discourse/lib/ajax";
 import { inject as service } from "@ember/service";
 import { userPath } from "discourse/lib/url";
 
-export default class OnboardingUnfilledUserFields extends Component {
+export default class OnboardingHasLetterAvatar extends Component {
   @service currentUser;
   @tracked submitDisabled = true;
   @tracked saved;

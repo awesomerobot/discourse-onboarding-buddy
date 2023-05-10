@@ -4,7 +4,7 @@ import { action } from "@ember/object";
 import { tracked } from "@glimmer/tracking";
 import { ajax } from "discourse/lib/ajax";
 
-export default class YourComponent extends Component {
+export default class OnboardingNoBio extends Component {
   @service currentUser;
   @tracked updatedBio;
   @tracked saved;
