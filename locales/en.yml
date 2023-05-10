@@ -6,7 +6,7 @@ en:
     maybe_later: "Maybe later"
     complete:
       headline: "Woo hoo!"
-      description: "That's all for now, go fourth and discuss!"
+      description: "That's all for now, go forth and discuss!"
       button: "Close"
     bio:
       button: "Add to profile"
