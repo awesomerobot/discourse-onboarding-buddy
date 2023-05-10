@@ -52,7 +52,7 @@ export default class OnboardingTips extends Component {
       return 1;
     }
     if (setting === "disabled") {
-      return 0;
+      return -1;
     }
   }
 
@@ -126,7 +126,8 @@ export default class OnboardingTips extends Component {
 
   get hasValidItems() {
     return this.listItems.some(
-      (item) => item.condition === undefined || item.condition
+      (item) =>
+        item.weight > -1 && (item.condition === undefined || item.condition)
     );
   }
 
