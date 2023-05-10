@@ -1,6 +1,6 @@
 show_on:
   type: enum
-  default: all
+  default: homepage
   choices:
     - homepage
     - all
