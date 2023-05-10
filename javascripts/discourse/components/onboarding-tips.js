@@ -163,10 +163,7 @@ export default class OnboardingTips extends Component {
         weight: this.#parsePriority(settings.name_priority),
         id: "onboarding-no-name",
         label: "Has not added a name",
-        condition:
-          !this.siteSettings.prioritize_username_in_ux &&
-          this.fullProfile?.can_edit_name &&
-          !this.currentUser.name,
+        condition: this.fullProfile?.can_edit_name && !this.currentUser.name,
       },
       {
         weight: this.#parsePriority(settings.bio_priority),
