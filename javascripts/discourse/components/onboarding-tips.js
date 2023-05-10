@@ -82,8 +82,6 @@ export default class OnboardingTips extends Component {
       localStorage.removeItem(localStorageKey);
     } else {
       this.shouldShow = true;
-      // change tip on route change
-      this.setRandomListItem();
     }
   }
 
